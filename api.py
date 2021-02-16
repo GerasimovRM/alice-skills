@@ -25,7 +25,7 @@ cities = {
 sessionStorage = {}
 
 
-@app.route('/post', methods=['POST'])
+@app.route('/', methods=['POST'])
 def main():
     logging.info(f'Request: {request.json!r}')
     response = {
@@ -37,6 +37,7 @@ def main():
     }
     handle_dialog(response, request.json)
     logging.info(f'Response: {response!r}')
+    print(response)
     return json.dumps(response)
 
 
