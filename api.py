@@ -56,66 +56,22 @@ def handle_dialog(res, req):
     # если пользователь не новый, то попадаем сюда.
     # если поле имени пустое, то это говорит о том,
     # что пользователь еще не представился.
-    if sessionStorage[user_id]['first_name'] is None:
-        # в последнем его сообщение ищем имя.
-        first_name = get_first_name(req)
-        # если не нашли, то сообщаем пользователю что не расслышали.
-        if first_name is None:
-            res['response']['text'] = \
-                'Не расслышала имя. Повтори, пожалуйста!'
-        # если нашли, то приветствуем пользователя.
-        # И спрашиваем какой город он хочет увидеть.
-        else:
-            sessionStorage[user_id]['first_name'] = first_name
-            res['response'][
-                'text'] = 'Приятно познакомиться, ' \
-                          + first_name.title() \
-                          + '. Я - Алиса. Какой город хочешь увидеть?'
-            # получаем варианты buttons из ключей нашего словаря cities
-            res['response']['buttons'] = [
-                {
-                    'title': city.title(),
-                    'hide': True
-                } for city in cities
-            ]
-    # если мы знакомы с пользователем и он нам что-то написал,
-    # то это говорит о том, что он уже говорит о городе,
-    # что хочет увидеть.
+
+    # ищем город в сообщение от пользователя
+    city = get_city(req)
+    # если этот город среди известных нам,
+    # то показываем его (выбираем одну из двух картинок случайно)
+    if city in cities:
+        res['response']['card'] = {}
+        res['response']['card']['type'] = 'BigImage'
+        res['response']['card']['title'] = 'Этот город я знаю.'
+        res['response']['card']['image_id'] = random.choice(cities[city])
+        res['response']['text'] = 'Я угадал!'
+    # если не нашел, то отвечает пользователю
+    # 'Первый раз слышу об этом городе.'
     else:
-        res = {
-  "response": {
-    "text": "Здравствуйте! Это мы, хороводоведы.",
-    "tts": "Здравствуйте! Это мы, хоров+одо в+еды.",
-    "card": {
-      "type": "BigImage",
-      "image_id": "1027858/46r960da47f60207e924",
-      "title": "Заголовок для изображения",
-      "description": "Описание изображения.",
-      "button": {
-        "text": "Надпись на кнопке",
-        "url": "http://example.com/",
-        "payload": {}
-      }
-    },
-    "end_session": False
-  },
-  "version": "1.0"
-}
-        # ищем город в сообщение от пользователя
-        city = get_city(req)
-        # если этот город среди известных нам,
-        # то показываем его (выбираем одну из двух картинок случайно)
-        if city in cities:
-            res['response']['card'] = {}
-            res['response']['card']['type'] = 'BigImage'
-            res['response']['card']['title'] = 'Этот город я знаю.'
-            res['response']['card']['image_id'] = random.choice(cities[city])
-            res['response']['text'] = 'Я угадал!'
-        # если не нашел, то отвечает пользователю
-        # 'Первый раз слышу об этом городе.'
-        else:
-            res['response']['text'] = \
-                'Первый раз слышу об этом городе. Попробуй еще разок!'
+        res['response']['text'] = \
+            'Первый раз слышу об этом городе. Попробуй еще разок!'
 
 
 def get_city(req):
