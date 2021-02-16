@@ -37,7 +37,6 @@ def main():
     }
     handle_dialog(response, request.json)
     logging.info(f'Response: {response!r}')
-    print(response)
     return json.dumps(response)
 
 
